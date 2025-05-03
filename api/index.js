@@ -4,6 +4,8 @@ import db from "./database/configdb.js";
 import userRoute from "./routes/user.route.js";
 import exampleRoute from "./routes/example.route.js";
 
+import User from './models/User.js'; // Importado para mostrar no Banco do Mongo Express
+
 dotenv.config();
 db.connect();
 
