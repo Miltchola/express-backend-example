@@ -3,8 +3,8 @@ import exampleController from '../controller/example.controller.js';
 import verifyToken from '../middleware/jwt.token.middleware.js';
 
 const router = express.Router();
-
-// Rota de POST
+// GET
+// Rota de PROTECTED
 router.get('/', verifyToken, exampleController.securedExample); 
 
 export default router;
