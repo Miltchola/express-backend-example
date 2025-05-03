@@ -1,71 +1,65 @@
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import {
+  registerUser,
+  authenticateUser
+} from '../services/user.service.js';
+
+// Regex simples para validar e-mails
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const register = async (req, res) => {
-    console.log("Registering user: ", req.body);
+  const { username, email, password } = req.body;
+  console.log("Registering user:", req.body);
 
-    // Checa se os campos foram preenchidos
-    if ( !req.body || !req.body.username || !req.body.password ) {
-        return res.status(400).json({ message: 'Username and password are required!' });
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Username, email, and password are required!' });
+  }
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ message: 'Invalid email format.' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
+  }
+
+  try {
+    await registerUser({ username, email, password });
+    return res.status(201).json({ message: 'User registered successfully!' });
+  } catch (error) {
+    console.error("Error registering user:", error);
+    if (error.message.includes('Email already exists')) {
+      return res.status(409).json({ message: 'Email already in use.' });
     }
-
-    const { username, email,  password } = req.body;
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    try {
-        const savedUser = await User.create({
-            username: username,
-            email: email,
-            password: hashedPassword
-        });
-
-        console.log("User saved: ", savedUser);
-        return res.status(201).json({ message: 'User registered successfully!' });
-    }
-    catch (error) {
-        console.error("Error saving user: ", error);
-        return res.status(500).json({ message: 'Error saving user!' });
-    }
-
-
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
 };
 
 const login = async (req, res) => {
-    console.log("Logging in user: ", req.body);
+  const { username, password } = req.body;
+  console.log("Logging in user:", req.body);
 
-    // Checa se os campos foram preenchidos
-    if ( !req.body || !req.body.username || !req.body.password ) {
-        return res.status(400).json({ message: 'Username and password are required!' });
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required!' });
+  }
+
+  try {
+    const user = await authenticateUser({ username, password });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return res.status(200).json({
+      message: 'User logged in successfully!',
+      token
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    if (error.message.includes('User not found')) {
+      return res.status(404).json({ message: 'User not found.' });
     }
-
-    const { username, password } = req.body;
-
-    try {
-        const user = await User.findOne({ username }).select('+password email');
-
-        if (!user) {
-            console.log("User not found: ", username);
-            return res.status(404).json({ message: 'User not found!' });
-        }
-
-        // Compare the password with the hashed password
-        const isMatch = await bcrypt.compare(password, user.password);
-        console.log("Password match: ", isMatch);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials!' });
-        }
-
-        console.log("User logged in: ", user);
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        return res.status(201).json({ message: 'User logged in successfully!', token });
+    if (error.message.includes('Invalid password')) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
     }
-    catch (error) {
-        console.error("Error logging in user: ", error);
-        return res.status(500).json({ message: 'Error logging in user!' });
-    }
-}
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
 
 export default { register, login };
