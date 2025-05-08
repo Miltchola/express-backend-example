@@ -3,6 +3,6 @@ curl --request POST \
   --header "Authorization: Bearer $1" \
   --header 'Content-Type: application/json' \
   --data '{
-    "title": "Estudar Node.js",
-    "description": "Revisar arquitetura em camadas e JWT"
+    "title": "Finalizar Back-End",
+    "description": "Atualizar e Testar o CRUD Autenticado"
   }'
