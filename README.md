@@ -14,6 +14,20 @@ Este projeto é uma API RESTful desenvolvida com **Node.js**, **Express** e **Mo
 - `GET /protected` - Retorna mensagem de sucesso apenas se o token JWT for válido no header `Authorization`.
 
 ---
+## Lista de Tarefas (to-do-list):
+
+A aplicação Back-end é utilizada como uma lista de tarefas para o usuário.
+Cada tarefa terá:
+
+-> title (string, obrigatório)
+
+-> description (string, opcional)
+
+-> completed (boolean, padrão: false)
+
+-> createdAt (data, padrão: agora)
+
+-> userId (referência ao usuário que criou)
 
 ## 🧪 Scripts de Teste (requests/)
 
@@ -50,7 +64,7 @@ npm run start:app
 
 ---
 ### Link do Vídeo demonstrativo:
-https://drive.google.com/file/d/1mY17Hr3P1ZZFOXK4ZGNfQUI9LZcQaHX4/view?usp=sharing
+
 
 ### Link do Vercel:
 https://express-backend-example-theta.vercel.app/
