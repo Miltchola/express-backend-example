@@ -21,7 +21,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 
-app.options('*', cors()); // Habilita preflight global
 
 app.use(express.json());
 
