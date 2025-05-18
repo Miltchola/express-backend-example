@@ -4,6 +4,8 @@ import db from "./database/configdb.js";
 import userRoute from "./routes/user.route.js";
 import exampleRoute from "./routes/example.route.js";
 import taskRoutes from "./routes/task.route.js"; // Importado para mostrar no Banco do Mongo Express
+import cors from 'cors';
+
 
 import User from './models/User.js'; // Importado para mostrar no Banco do Mongo Express
 
@@ -12,6 +14,13 @@ db.connect();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(cors({
+  origin: 'http://localhost:5173', // Seu frontend
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
+
 
 app.use(express.json());
 
